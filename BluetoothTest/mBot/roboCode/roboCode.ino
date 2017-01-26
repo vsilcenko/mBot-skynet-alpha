@@ -9,6 +9,8 @@ MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
 MeBluetooth bluetooth(PORT_3);
 MeBuzzer buzzer;
+MeUltrasonicSensor ultrasonic(10);
+
 
 #define BUZZER_PORT                          45
 
@@ -98,39 +100,63 @@ void setup(){
     attachInterrupt(Encoder_2.getIntNum(), isr_process_encoder2, RISING);
     Serial.begin(115200);
     ledas.setpin(44);
+    for(int i = 0; i < 12; i++){
+      ledas.setColor(i+1, 0,0,0);
+    }
+    ledas.show();
 }
 int ledNumber = 0;
 float percentage = 0;
 float angle = 0;
+bool evading = false;
 void loop(){
-  for(int i = 0; i < 12; i++){
-    if(i%3==0){
-      ledas.setColor(i+1, ledai[i],0,0);
-    }
-    if(i%3==1){
-      ledas.setColor(i+1, 0,ledai[i],0);
-    }
-    if(i%3==2){
-      ledas.setColor(i+1, 0,0,ledai[i]);
-    }
-    ledai[i] = (int)(sin((i+1)*angle)*50);
-    angle += 0.00001;
-    if ((i+1)*angle >= 3.14){
-      angle = 0;
-    }
-    ledas.setColor(i+1,0,0,0);
-  }
-  ledas.show();
+//  for(int i = 0; i < 12; i++){
+//    if(i%3==0){
+//      ledas.setColor(i+1, ledai[i],0,0);
+//    }
+//    if(i%3==1){
+//      ledas.setColor(i+1, 0,ledai[i],0);
+//    }
+//    if(i%3==2){
+//      ledas.setColor(i+1, 0,0,ledai[i]);
+//    }
+//    ledai[i] = (int)(sin((i+1)*angle)*50);
+//    angle += 0.00001;
+//    if ((i+1)*angle >= 3.14){
+//      angle = 0;
+//    }
+//  }
+//  ledas.show();
+
 if(Serial.available() > 0)      // Send data only when you receive data:
    {
-      buzzer.tone(988, 125);
       data = Serial.readBytes(cmd, 2);
       move(cmd[0], cmd[1]);
+      buzzer.tone(10*cmd[1], 125);
+      evading = false;
+      angle = 0;
       Serial.write(cmd, 2);
+      for(int i = 0; i < 12; i++){
+        ledas.setColor(i+1, 0,0,0);
+      }
+      ledas.show();
    }
-   
-
-    
+   if(ultrasonic.distanceCm() <  20 ){
+        move(4,100);
+        evading = true;
+    }
+    if(evading){
+      
+      for(int i = 0; i < 12; i++){
+        ledas.setColor(i+1, ledai[i],0,0);
+        ledai[i] = (int)(sin(angle)*40);
+      }
+      angle += 0.03;
+      if (angle >= 3.14){
+        angle = 0;
+      }
+      ledas.show();
+    }
     _loop();
 //  int readdata = 0,i = 0,count = 0;
 //  char outDat;

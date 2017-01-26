@@ -76,6 +76,7 @@ namespace BluetoothTest
                     streamWriter.Write(Command, 0, 2);
 
                     //Client.GetStream().Read(buffer, 0, 20);
+                    //Console.WriteLine($"{buffer[0]} {buffer[1]}");
                 }
             }
         }
