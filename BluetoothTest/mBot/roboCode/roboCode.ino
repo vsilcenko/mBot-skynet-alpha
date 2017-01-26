@@ -97,7 +97,6 @@ void setup(){
      attachInterrupt(Encoder_1.getIntNum(), isr_process_encoder1, RISING);
     attachInterrupt(Encoder_2.getIntNum(), isr_process_encoder2, RISING);
     Serial.begin(115200);
-    Serial.println( "Connected maybe?");
     ledas.setpin(44);
 }
 int ledNumber = 0;
@@ -126,13 +125,13 @@ if(Serial.available() > 0)      // Send data only when you receive data:
    {
       buzzer.tone(988, 125);
       data = Serial.readBytes(cmd, 2);
-//      move(cmd[0], cmd[1]);
-      move(1, 50);
+      move(cmd[0], cmd[1]);
       Serial.write(cmd, 2);
    }
    
 
     
+    _loop();
 //  int readdata = 0,i = 0,count = 0;
 //  char outDat;
 //  if (bluetooth.available())
