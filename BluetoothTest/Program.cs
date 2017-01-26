@@ -32,21 +32,21 @@ namespace BluetoothTest
                 Client = new BluetoothClient();
 
 
-                var isPaired = BluetoothSecurity.PairRequest(mbot.DeviceAddress, "325870");
+                var isPaired = BluetoothSecurity.PairRequest(mbot.DeviceAddress, "694395");
                 Console.WriteLine(isPaired ? "Paired!" : "There was a problem pairing.");
 
                 // check if device is paired
-                if (mbot.Authenticated)
+                if (isPaired && mbot.Authenticated)
                 {
                     // set pin of device to connect with
-                    Client.SetPin("325870");
+                    Client.SetPin("694395");
                     // async connection method
                     Client.BeginConnect(mbot.DeviceAddress, BluetoothService.SerialPort, Connect, mbot);
                 }
 
-// callback
-        
-    }
+                // callback
+
+            }
 
             // Keep the console window open in debug mode.
             Console.WriteLine("Press any key to exit.");
@@ -55,15 +55,22 @@ namespace BluetoothTest
 
         private static void Connect(IAsyncResult result)
         {
+            var buffer = new byte[20];
+            
             if (result.IsCompleted)
             {
-                while (true)
+                using (var streamWriter = new StreamWriter(Client.GetStream()))
                 {
-                    using (var streamWriter = new StreamWriter(Client.GetStream()))
+                    while (true)
                     {
-                        streamWriter.Write(1);
+                        streamWriter.Write(9);
+                        //streamWriter.Write(-1);
+                        streamWriter.Flush();
+                        Thread.Sleep(1000);
+
+
+                        Client.GetStream().Read(buffer, 0, 20);
                     }
-                    Thread.Sleep(1000);
                 }
 
                 // client is connected now :)
