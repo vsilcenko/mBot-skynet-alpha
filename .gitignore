@@ -1,0 +1,74 @@
+# Resharper folders
+_ReSharper*/
+
+# Visual Studio bin and obj folders
+bin/
+obj/
+
+# Visual studio user files
+*.suo
+*.user
+
+# Azure Emulator temp folders
+csx/
+
+# NCrunch specific folders and files
+_NCrunch*/
+*.ncrunchsolution
+*.ncrunchproject
+
+# Other
+*.orig
+*.build.csdef
+
+# Database project
+*.log
+*.dbmdl
+
+packages/*
+TestResults/*
+source/C5 Transformation Service/C5TransformationService/rcf/*
+source/C5 Transformation Service/C5Transformation.Cloud/rcf/*
+source/C5 Transformation Service/C5TransformationServiceOld/rcf/*
+.nuget/*
+source/FileTransfer/packages/*
+source/FileTransfer/.nuget/*
+source/FileTransfer/FileTrasferService/bin/*
+source/FileTransfer/FileTrasferService/obj/*
+source/File Transfer Service/FileTrasnferWebService/bin/*
+source/File Transfer Service/FileTrasnferWebService/obj/*
+
+source/Services/PZEmailService/packages/*
+source/Services/PZEmailService/.nuget/*
+
+
+# bundles
+
+source/Portal/App_Data/TEMP/ClientDependency/1952407963_46e11bc838004acd97750b968762544d.cdC
+source/Portal/App_Data/
+
+#VS 15 config
+.vs
+
+
+source/Portal/node_modules
+source/Portal/bower_components
+source/Portal/bower_dependencies
+source/Portal/App/**/*.js
+source/Portal/App/**/*.js.map
+source/Portal/App 2/**/*.js
+source/Portal/App 2/**/*.js.map
+!source/Portal/App/admin/benchmark/directives/currencies.directive.js
+source/Portal/Assets/Scripts
+source/Portal/Assets/Styles
+/node_modules
+
+source/Portal/Areas/SelfProvisioning/app/**/*.js
+source/Portal/Areas/SelfProvisioning/app/**/*.js.map
+source/Portal/Areas/SelfProvisioning/Content/build/js/**/*.js
+!source/Portal/Areas/SelfProvisioning/Content/build/js/**/*.min.js
+source/Portal/Areas/SelfProvisioning/Content/build/css/**/*.css
+!source/Portal/Areas/SelfProvisioning/Content/build/css/**/*.min.css
+
+source/Portal/Content/Main*.css
+source/Portal/Areas/SelfProvisioning/Content/SelfProvisioning*.css
