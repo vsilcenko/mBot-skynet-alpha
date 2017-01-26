@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using InTheHand.Net;
 using InTheHand.Net.Bluetooth;
 using InTheHand.Net.Sockets;
 
@@ -15,6 +11,9 @@ namespace BluetoothTest
     {
         private static string MBotName { get; set; }
         private static BluetoothClient Client { get; set; }
+        private static readonly AutoResetEvent StopWaitHandle = new AutoResetEvent(false);
+        private static byte[] Command { get; set; }
+
 
         static void Main(string[] args)
         {
@@ -30,50 +29,123 @@ namespace BluetoothTest
             if (mbot != null && !mbot.Connected)
             {
                 Client = new BluetoothClient();
-
-
-                var isPaired = BluetoothSecurity.PairRequest(mbot.DeviceAddress, "694395");
+                
+                var isPaired = BluetoothSecurity.PairRequest(mbot.DeviceAddress, "682011");
                 Console.WriteLine(isPaired ? "Paired!" : "There was a problem pairing.");
 
                 // check if device is paired
                 if (isPaired && mbot.Authenticated)
                 {
                     // set pin of device to connect with
-                    Client.SetPin("694395");
+                    Client.SetPin("682011");
                     // async connection method
                     Client.BeginConnect(mbot.DeviceAddress, BluetoothService.SerialPort, Connect, mbot);
+
+                    StopWaitHandle.WaitOne();
                 }
-
-                // callback
-
             }
 
-            // Keep the console window open in debug mode.
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
+            while (true)
+            {
+            }
         }
 
         private static void Connect(IAsyncResult result)
         {
-            var buffer = new byte[20];
-            
-            if (result.IsCompleted)
+            StopWaitHandle.Set();
+
+            if (!result.IsCompleted)
             {
-                using (var streamWriter = new StreamWriter(Client.GetStream()))
+                return;
+            }
+
+            Command = new byte[] {0, 0};
+
+            var buffer = new byte[20];
+
+            // get commands from keyboard and send them to the robot
+            using (var streamWriter = Client.GetStream())
+            {
+                while (true)
                 {
-                    while (true)
+                    var isValidCommand = GetCommand();
+                    if (!isValidCommand)
                     {
-                        streamWriter.Write(9);
-                        //streamWriter.Write(-1);
-                        streamWriter.Flush();
-                        Thread.Sleep(1000);
-
-
-                        Client.GetStream().Read(buffer, 0, 20);
+                        continue;
                     }
-                }
+                    streamWriter.Write(Command, 0, 2);
 
-                // client is connected now :)
+                    //Client.GetStream().Read(buffer, 0, 20);
+                }
+            }
+        }
+
+        private static bool GetCommand()
+        {
+            var keyInfo = Console.ReadKey();
+            switch (keyInfo.Key)
+            {
+                case ConsoleKey.W:
+                {
+                    SetCommand(Constants.ForwardDirection);
+                    return true;
+                }
+                case ConsoleKey.S:
+                    {
+                    SetCommand(Constants.BackwardsDirection);
+                    return true;
+                    }
+                case ConsoleKey.D:
+                    {
+                    SetCommand(Constants.RightDirection);
+                    return true;
+                    }
+                case ConsoleKey.A:
+                    {
+                    SetCommand(Constants.LeftDirection);
+                    return true;
+                    }
+                case ConsoleKey.Spacebar:
+                {
+                    Command[1] = 0;
+                    return true;
+                    }
+            }
+            return false;
+
+        }
+
+        private static void SetCommand(byte direction)
+        {
+            if (Command[0] == direction || Command[1] == 0)
+            {
+                IncreaseSpeed();
+            }
+            else if (direction <= 2 && Command[0] <= 2)
+            {
+                if (Command[1]  <= Constants.SpeadIncrease)
+                {
+                    // reset speed and increase to move backwards
+                    Command[1] = 0;
+                }
+                else
+                {
+                    Command[1] -= Constants.SpeadIncrease;
+                    return;
+                }
+            }
+            Command[0] = direction;
+        }
+
+        private static void IncreaseSpeed()
+        {
+            if (Command[1] + Constants.SpeadIncrease > Constants.MaxSpeed)
+            {
+                Command[1] = Constants.MaxSpeed;
+            }
+            else
+            {
+                Command[1] += Constants.SpeadIncrease;
             }
         }
     }
