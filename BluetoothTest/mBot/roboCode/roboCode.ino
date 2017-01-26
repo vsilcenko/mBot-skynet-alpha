@@ -80,9 +80,13 @@ double angle_rad = PI/180.0;
 double angle_deg = 180.0/PI;
 
 char data = 0;
-
+int lerp(int min, int max, float t){
+  return (int)(min + t*(max-min));
+}
 unsigned char table[128] = {0};
-
+unsigned char cmd[2] = {0};
+MeRGBLed ledas(0,12);
+int ledai[12] = {0};
 void setup(){
     //Set Pwm 8KHz
     TCCR1A = _BV(WGM10);
@@ -94,35 +98,41 @@ void setup(){
     attachInterrupt(Encoder_2.getIntNum(), isr_process_encoder2, RISING);
     Serial.begin(115200);
     Serial.println( "Connected maybe?");
+    ledas.setpin(44);
 }
-
+int ledNumber = 0;
+float percentage = 0;
+float angle = 0;
 void loop(){
+  for(int i = 0; i < 12; i++){
+    if(i%3==0){
+      ledas.setColor(i+1, ledai[i],0,0);
+    }
+    if(i%3==1){
+      ledas.setColor(i+1, 0,ledai[i],0);
+    }
+    if(i%3==2){
+      ledas.setColor(i+1, 0,0,ledai[i]);
+    }
+    ledai[i] = (int)(sin((i+1)*angle)*50);
+    angle += 0.00001;
+    if ((i+1)*angle >= 3.14){
+      angle = 0;
+    }
+    ledas.setColor(i+1,0,0,0);
+  }
+  ledas.show();
 if(Serial.available() > 0)      // Send data only when you receive data:
    {
-    buzzer.tone(988, 125);
-      data = Serial.read();        //Read the incoming data & store into data
-      Serial.print(data);          //Print Value inside data in Serial monitor
-      Serial.print("\n");        
-      if(data == '9')   {
-        buzzer.tone(988, 125);
-        // Checks whether value of data is equal to 1
-//         digitalWrite(13, HIGH);   //If value is 1 then LED turns ON
-      Serial.write("hello robot!");
-      }
-      else if(data == '-1')    {
-        buzzer.tone(10, 15);
-        //  Checks whether value of data is equal to 0
-//         digitalWrite(13, LOW);    //If value is 0 then LED turns OFF
-      }
-      else if(data == '2')    {
-        buzzer.tone(10, 15);
-        //  Checks whether value of data is equal to 0
-//         digitalWrite(13, LOW);    //If value is 0 then LED turns OFF
-      }
+      buzzer.tone(988, 125);
+      data = Serial.readBytes(cmd, 2);
+//      move(cmd[0], cmd[1]);
+      move(1, 50);
+      Serial.write(cmd, 2);
    }
    
 
-  
+    
 //  int readdata = 0,i = 0,count = 0;
 //  char outDat;
 //  if (bluetooth.available())
